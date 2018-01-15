@@ -22,14 +22,11 @@ class GetProxy:
         try:
             proxy = requests.get(self.__GetApi).text
             logging.info("通过API获取到代理IP地址{}".format(proxy))
-            code = self.verifcation_url(proxy)
-            return code, proxy
-        except requests.exceptions.ConnectionError:
-            logging.info("代理API服务器无法连接")
-            return False, "proxy API conn fail"
         except requests.exceptions.ConnectTimeout:
             logging.critical("代理API服务器访问超时,请确认代理")
             return False, "proxy API conn timeout"
+        code = self.verifcation_url(proxy)
+        return code, proxy
 
     @staticmethod
     def delete_proxy(proxy):
@@ -39,11 +36,15 @@ class GetProxy:
     @staticmethod
     def verifcation_url(proxy):
         try:
-            comm = requests.get("https://www.qnjslm.com/ip.php", timeout=5, proxies={'https': 'http://{}'.format(proxy)}).content
+            comm = requests.get("https://www.qnjslm.com/ip.php", timeout=6, proxies={'https': 'http://{}'.format(proxy)}).text
             if comm.strip() in proxy:
                 logging.info("验证代理IP地址为:{},可以成功访问站点".format(comm.strip()))
             else:
                 logging.warning("代理访问正常，但这可能是一个透明代理，IP地址:{}".format(comm.strip()))
             return True
-        except:
+        except requests.exceptions.ConnectTimeout:
+            logging.warning("代理服务器连接超时")
+            return False
+        except requests.exceptions.ProxyError:
+            logging.warning("代理服务器无法使用")
             return False

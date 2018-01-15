@@ -36,7 +36,7 @@ logging.debug("程序启动,初始化完成")
 logging.info("开始百度优化访问")
 p_dic = {'keyword': 'IT运维经验', 'url': 'www.qnjslm.com'}
 baidu_spider = Baidu_Spider.GetKeyWordUrl(p_dic)
-sro = Get_UA.get_user_agent()
+ua = Get_UA.get_user_agent()
 proxy = proxy.GetProxy()
 while 1:
     (proxy_code, proxy_ip) = proxy.get_proxy()
@@ -45,7 +45,7 @@ while 1:
             logging.warning("IP地址池没有可用代理IP地址，暂停等待")
             time.sleep(120)
 
-        (baidu_code, baidu_message) = baidu_spider.man(proxy, sro)
+        (baidu_code, baidu_message) = baidu_spider.man(proxy_ip, ua)
         if baidu_code == 10:
             sys.exit(1)
         else:
